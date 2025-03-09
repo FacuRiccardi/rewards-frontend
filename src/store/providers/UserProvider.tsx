@@ -1,32 +1,40 @@
 import { ReactNode, useState } from "react"
+import { toast } from "sonner"
 import { UserContext } from "../contexts/UserContext"
 import { User } from "../contexts/types"
 import { apiFetch } from "../../lib/apiFetch"
+import { getItem, setItem, removeItem } from "../../lib/localstorage"
 
 interface UserProviderProps {
   children: ReactNode
   onLoginSuccess?: () => Promise<void>
 }
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
 export function UserProvider({ children }: UserProviderProps) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(getItem('user'))
   const [isLoading, setIsLoading] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [registerError, setRegisterError] = useState<string | null>(null)
 
   const login = async (username: string, password: string, onSuccess: () => void) => {
     try {
       setIsLoading(true)
 
-      const { user } = await apiFetch('/login', {
+      const { user, error } = await apiFetch('/login', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       })
 
-      setUser(user)
-      onSuccess()
+      if (error) {
+        setLoginError(error)
+      } else {
+        setUser(user)
+        setItem('user', user)
+        setLoginError(null)
+        onSuccess()
+      }
     } catch(error) {
-      console.error('Error logging in', error)
+      toast.error('Error registering')
     } finally {
       setIsLoading(false)
     }
@@ -36,15 +44,22 @@ export function UserProvider({ children }: UserProviderProps) {
     try {
       setIsLoading(true)
 
-      const { user } = await apiFetch('/register', {
+      const { user, error } = await apiFetch('/register', {
         method: 'POST',
         body: JSON.stringify({ name, username, password }),
       })
 
-      setUser(user)
-      onSuccess()
+
+      if (error) {
+        setRegisterError(error)
+      } else {
+        setUser(user)
+        setItem('user', user)
+        setRegisterError(null)
+        onSuccess()
+      }
     } catch(error) {
-      console.error('Error registering', error)
+        toast.error('Error registering')
     } finally {
       setIsLoading(false)
     }
@@ -52,18 +67,17 @@ export function UserProvider({ children }: UserProviderProps) {
 
   const logout = async () => {
     setUser(null)
+    removeItem('user')
   }
 
   const updatePoints = async (newPoints: number) => {
-    // Simulate API call delay
-    await delay(800)
     if (user) {
       setUser({ ...user, points: newPoints })
     }
   }
 
   return (
-    <UserContext.Provider value={{ user, login, register, logout, updatePoints, isLoading }}>
+    <UserContext.Provider value={{ user, login, register, logout, updatePoints, isLoading, loginError, registerError }}>
       {children}
     </UserContext.Provider>
   )

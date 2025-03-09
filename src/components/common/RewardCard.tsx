@@ -8,9 +8,10 @@ interface RewardCardProps {
   reward?: Reward
   onRedeem?: () => void
   isLoading?: boolean
+  disabled?: boolean
 }
 
-export default function RewardCard({ reward, onRedeem, isLoading }: RewardCardProps) {
+export default function RewardCard({ reward, onRedeem, isLoading, disabled }: RewardCardProps) {
   return reward ? (
     <Card>
       <CardContent className="pt-1">
@@ -22,6 +23,7 @@ export default function RewardCard({ reward, onRedeem, isLoading }: RewardCardPr
         <Button
           onClick={onRedeem}
           className="bg-amber-300 hover:bg-amber-500 text-black w-25"
+          disabled={disabled}
         >
           { isLoading ? (
             <Loader2 className="animate-spin" />

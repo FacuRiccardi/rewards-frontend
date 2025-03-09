@@ -34,7 +34,7 @@ const formSchema = z.object({
 
 const Login = () => {
   const navigate = useNavigate()
-  const { login, isLoading } = useUser()
+  const { login, isLoading, loginError } = useUser()
   const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,6 +57,11 @@ const Login = () => {
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
+          {loginError && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+              {loginError}
+            </div>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField

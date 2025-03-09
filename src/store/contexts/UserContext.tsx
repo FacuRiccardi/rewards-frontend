@@ -8,6 +8,8 @@ interface UserContextType {
   logout: () => Promise<void>
   updatePoints: (newPoints: number) => Promise<void>
   isLoading: boolean
+  loginError: string | null
+  registerError: string | null
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)

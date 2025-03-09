@@ -8,7 +8,7 @@ const Redemptions = () => {
 
   useEffect(() => {
     if (redemptions.length === 0) {
-      fetchRedemptions(0, 1)
+      fetchRedemptions(0)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -23,7 +23,7 @@ const Redemptions = () => {
       {
         !isRedemptionsLoading && redemptionsPagination.currentPage < redemptionsPagination.totalPages && (
           <div className="flex justify-center">
-            <Button onClick={() => fetchRedemptions(redemptionsPagination.currentPage + 1, 1)} className="w-full bg-amber-300 hover:bg-amber-500 text-black">Load more</Button>
+            <Button onClick={() => fetchRedemptions(redemptionsPagination.currentPage + 1)} className="w-full bg-amber-300 hover:bg-amber-500 text-black">Load more</Button>
           </div>
         )
       }

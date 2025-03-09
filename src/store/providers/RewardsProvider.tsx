@@ -1,25 +1,26 @@
 import { ReactNode, useState } from "react"
+import { toast } from "sonner"
 import { RewardsContext } from "../contexts/RewardsContext"
 import { Reward, Redemption, Pagination } from "../contexts/types"
 import { useUser } from "../contexts/UserContext"
 import { apiFetch } from "../../lib/apiFetch"
-
+import { getItem, setItem, removeItem } from "../../lib/localstorage"
 interface RewardsProviderProps {
   children: ReactNode
 }
 
 export function RewardsProvider({ children }: RewardsProviderProps) {
   const { user, updatePoints } = useUser()
-  const [rewards, setRewards] = useState<Reward[]>([])
-  const [rewardsPagination, setRewardsPagination] = useState<Pagination>({
+  const [rewards, setRewards] = useState<Reward[]>(getItem('rewards') || [])
+  const [rewardsPagination, setRewardsPagination] = useState<Pagination>(getItem('rewardsPagination') || {
     currentPage: 0,
     totalPages: 0
   })
-  const [redemptionsPagination, setRedemptionsPagination] = useState<Pagination>({
+  const [redemptions, setRedemptions] = useState<Redemption[]>(getItem('redemptions') || [])
+  const [redemptionsPagination, setRedemptionsPagination] = useState<Pagination>(getItem('redemptionsPagination') || {
     currentPage: 0,
     totalPages: 0
   })
-  const [redemptions, setRedemptions] = useState<Redemption[]>([])
   const [isRewardsLoading, setIsRewardsLoading] = useState(false)
   const [isRedemptionsLoading, setIsRedemptionsLoading] = useState(false)
   const [redeemLoading, setRedeemLoading] = useState<number | null>(null)
@@ -34,8 +35,10 @@ export function RewardsProvider({ children }: RewardsProviderProps) {
 
       setRewards([...rewards, ..._rewards])
       setRewardsPagination(_pagination)
+      setItem('rewards', [...rewards, ..._rewards])
+      setItem('rewardsPagination', _pagination)
     } catch (error) {
-      console.error('Error fetching rewards:', error)
+      toast.error('Error fetching rewards, please reload the page')
     } finally {
       setIsRewardsLoading(false)
     }
@@ -50,8 +53,10 @@ export function RewardsProvider({ children }: RewardsProviderProps) {
       })
       setRedemptions([...redemptions, ..._redemptions])
       setRedemptionsPagination(_pagination)
+      setItem('redemptions', [...redemptions, ..._redemptions])
+      setItem('redemptionsPagination', _pagination)
     } catch (error) {
-      console.error('Error fetching redemptions:', error)
+      toast.error('Error fetching redemptions, please reload the page')
     } finally {
       setIsRedemptionsLoading(false)
     }
@@ -68,8 +73,10 @@ export function RewardsProvider({ children }: RewardsProviderProps) {
 
       setRedemptions(prev => [redemption, ...prev])
       updatePoints(points)
+      toast.success('Reward redeemed successfully')
+      setItem('redemptions', [redemption, ...redemptions])
     } catch (error) {
-      console.error('Error redeeming reward:', error)
+      toast.error('Error redeeming reward, please try again')
     } finally {
       setRedeemLoading(null)
     }
@@ -86,6 +93,10 @@ export function RewardsProvider({ children }: RewardsProviderProps) {
       currentPage: 0,
       totalPages: 0
     })
+    removeItem('rewards')
+    removeItem('rewardsPagination')
+    removeItem('redemptions')
+    removeItem('redemptionsPagination')
   }
 
   return (

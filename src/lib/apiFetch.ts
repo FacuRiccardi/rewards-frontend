@@ -14,7 +14,17 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   })
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+    try {
+      const { error, errors } = await response.json()
+
+      if (!error && !errors) throw new Error('Error fetching data')
+
+      return {
+        error: error ? error : errors.length ? errors[0] : 'Error fetching data'
+      }
+    } catch(error) {
+      throw new Error('Error fetching data')
+    }
   }
 
   return await response.json()

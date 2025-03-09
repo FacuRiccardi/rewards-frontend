@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
 import {
   Sheet,
@@ -36,9 +35,9 @@ const MobileNav = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <button className="p-2 rounded-md hover:bg-gray-100">
           <Menu className="h-6 w-6" />
-        </Button>
+        </button>
       </SheetTrigger>
       <SheetContent className="w-[240px] sm:w-[280px]">
         <NavigationMenu className="mt-4 items-start w-full">
